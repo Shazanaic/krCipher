@@ -9,57 +9,85 @@ public class Main {
     public static void main(String[] args) {
         Cipherator cipher = new Cipherator();
 
-        try {
-            String text = readText();
-            int shift = readShift();
-            Action action = readAction();
+        while (true) {
+            try {
+                Action action = readAction();
 
-            String result = switch (action) {
-                case ENCRYPT -> cipher.encrypt(text, shift);
-                case DECRYPT -> cipher.decrypt(text, shift);
-            };
+                if (action == Action.EXIT) {
+                    break;
+                }
 
-            System.out.println("\nResult:");
-            System.out.println(result);
+                String text = readText();
+                int shift = readShift();
 
-        } catch (Exception e) {
-            System.err.println(e.getMessage());
+                String result = switch (action) {
+                    case ENCRYPT -> cipher.encrypt(text, shift);
+                    case DECRYPT -> cipher.decrypt(text, shift);
+                    default -> throw new IllegalStateException();
+                };
+
+                System.out.println("\nResult:");
+                System.out.println(result);
+                System.out.println();
+
+            } catch (Exception e) {
+                System.err.println(e.getMessage());
+                System.out.println();
+            }
         }
     }
 
     private static String readText() {
-        System.out.print("Enter text: ");
-        String text = scanner.nextLine();
+        while (true) {
+            System.out.print("Enter text: ");
+            String text = scanner.nextLine();
 
-        if (text.isBlank()) {
-            throw new IllegalArgumentException("Must be not null");
+            if (!text.isBlank()) {
+                return text;
+            }
+            System.err.println("Text must not be empty");
         }
-        return text;
     }
 
     private static int readShift() {
-        System.out.print("Enter shift: ");
-        if (!scanner.hasNextInt()) {
-            throw new IllegalArgumentException("Must be a number");
+        while (true) {
+            System.out.print("Enter shift: ");
+            if (scanner.hasNextInt()) {
+                int shift = scanner.nextInt();
+                scanner.nextLine();
+                return shift;
+            }
+            System.err.println("Shift must be a number");
+            scanner.nextLine();
         }
-        int shift = scanner.nextInt();
-        scanner.nextLine();
-        return shift;
     }
 
     private static Action readAction() {
-        System.out.print("What to do? \n1 - encrypt | 2 - decrypt: ");
-        String input = scanner.nextLine().trim();
+        while (true) {
+            System.out.println("Choose action:");
+            System.out.println("1 - Encrypt");
+            System.out.println("2 - Decrypt");
+            System.out.println("0 - Exit");
+            System.out.print("-> ");
 
-        return switch (input) {
-            case "1" -> Action.ENCRYPT;
-            case "2" -> Action.DECRYPT;
-            default -> throw new IllegalArgumentException("wrong answer");
-        };
+            String input = scanner.nextLine().trim();
+
+            switch (input) {
+                case "1":
+                    return Action.ENCRYPT;
+                case "2":
+                    return Action.DECRYPT;
+                case "0":
+                    return Action.EXIT;
+                default:
+                    System.err.println("Wrong answer");
+            }
+        }
     }
 
     private enum Action {
         ENCRYPT,
-        DECRYPT
+        DECRYPT,
+        EXIT
     }
 }
